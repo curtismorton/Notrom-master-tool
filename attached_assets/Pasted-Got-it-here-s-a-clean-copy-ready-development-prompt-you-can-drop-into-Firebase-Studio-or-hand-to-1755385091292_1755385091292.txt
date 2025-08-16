@@ -1,0 +1,116 @@
+Got it — here’s a clean, copy-ready development prompt you can drop into Firebase Studio (or hand to any dev/agent) so they scaffold the system exactly as we’ve just refined it.
+
+⸻
+
+Prompt
+
+You are my senior full stack engineer. Build the Notrom Master Tool as a production-ready MVP on Firebase. This app automates a web dev agency from lead capture to monthly care with minimal manual work.
+
+Use Firebase on the free tier where possible. Keep cost low, performance high, and follow these guardrails:
+
+⸻
+
+Verdict
+
+This plan is solid and buildable on Firebase + Stripe + external APIs. Here are the requirements, edge cases, and fixes. Implement all of them.
+
+⸻
+
+Data model (Firestore collections)
+	•	users: { email, name, role: admin|staff|client, clientId? }
+	•	leads: { name, company, email, phone, source, notes, leadFingerprint, utm {source, medium, campaign}, score, status: new|qualified|discovery_booked|proposal_sent|won|lost, bookedMeetingId, createdAt, updatedAt, isDeleted, deletedAt }
+	•	clients: { company, legalName, vat, contacts[], billingEmail, plan: none|care_basic|care_plus|care_pro, stripeCustomerId, createdAt, updatedAt }
+	•	projects: { clientId, package, tech, status: intake|copy|design|build|qa|review|live|closed, repoUrl, stagingUrl, productionUrl, milestones, clientNotes, internalNotes, launchChecklistStatus, createdAt, updatedAt }
+	•	proposals: { clientId/leadId, package, price, currency, status: draft|sent|signed|declined, pdfUrl, signatureStatus, signedAt, version, proposalNumber, createdAt, updatedAt }
+	•	invoices: { clientId, projectId, amount, currency, type: deposit|milestone|care, stripeInvoiceId, stripePaymentLink, status: draft|sent|paid|overdue, dueDate, createdAt, updatedAt }
+	•	subscriptions: { clientId, plan, stripeSubscriptionId, status: active|on_hold|canceled, trialEndsAt, lastInvoiceStatus, currentPeriodEnd, createdAt, updatedAt }
+	•	meetings: { leadId/clientId, type, startTime, endTime, timezone, videoUrl, recordingUrl, transcriptUrl, aiSummary, actionItems[], createdAt, updatedAt }
+	•	assets: { clientId/projectId, kind, storagePath/externalUrl, status: draft|approved|rejected, pageSlug?, createdAt }
+	•	tickets: { clientId, projectId, subject, body, priority, status, slaDueAt, lastCustomerReplyAt, lastAgentReplyAt, createdAt, updatedAt }
+	•	logs: { at, byUid, action, payloadHash }
+
+⸻
+
+Core features & fixes
+	1.	Auth & roles – Firebase Auth with custom claims for admin|staff|client. Rules enforce access.
+	2.	Lead capture – /api/lead with reCAPTCHA + rate limiting. Prevent dupes with leadFingerprint. Reminder email at 48h.
+	3.	Scheduler – store slots in UTC with bufferMinutes. Create holds in holds/{slotId} to prevent collisions. Send ICS with both UTC + local. Start with ICS only, Google Meet optional.
+	4.	Transcription – Storage trigger runs Whisper in Cloud Functions Gen 2 (higher memory). Summarize with OpenAI.
+	5.	Proposals – Render HTML→PDF via headless Chromium. Store PDF + hash. Allow Stripe Checkout with “I agree” checkbox as legal acceptance.
+	6.	Payments – On signed proposals, create Stripe invoice (deposit). Webhook flips status to paid → advance project. Stripe idempotency keys + processedEvents log for safety.
+	7.	Provisioning – GitHub App + Vercel API. Tokens in Firebase Secrets. Add /selftest endpoint to validate.
+	8.	Assets & AI copy – Portal uploads to tmp/, validated by Function → move to /clients/{clientId}/. Auto-generate sitemap + copy drafts. If unreviewed after 24h, auto-advance project.
+	9.	Preview & QA – Vercel preview webhook writes URL to Firestore. Run Lighthouse CI + link checker in Gen 2 Function. If heavy, offload to Cloud Run. Create tickets for fails.
+	10.	Launch – Admin “Go Live” button runs DNS checklist, sitemap submission, status → live.
+	11.	Care plans – Default Care Plus Stripe checkout. If declined, auto-enroll in Care Basic trial 60 days → auto convert (with consent checkbox + reminder email).
+	12.	Monthly reports – Cloud Scheduler job per client: uptime, Core Web Vitals, GA4 optional, 3 CRO ideas. PDF emailed automatically.
+	13.	Support desk – Gmail push → /api/ticket. AI priority classifier. SLA due time computed. slaWatcher escalates every 5 min.
+	14.	Change orders – If ticket = scope creep, auto-draft Stripe Payment Link.
+	15.	Audit trail – Write all business actions to logs.
+	16.	Soft delete – Use isDeleted instead of hard deletes. Weekly export to Storage.
+	17.	GDPR – Use europe-west2. Document processors.
+
+⸻
+
+Security rules
+	•	Only authenticated users.
+	•	users: read own, admins read all.
+	•	clients: client users read their own, admins full access.
+	•	projects/proposals/invoices/subscriptions/tickets: client users read own by clientId, admins write.
+	•	assets: write only to tmp/{uid}/**. Move + validate in Function.
+	•	Use Firestore transactions for critical transitions.
+
+⸻
+
+Operational guardrails
+	•	Use Functions Gen 2 in same region.
+	•	Wrap all external calls with retries + timeouts.
+	•	Add /health endpoint to check secrets + API reachability.
+	•	Add a “pause automations” toggle per client.
+	•	Logging: Firestore logs for business events, console logs for debug.
+
+⸻
+
+Composite indexes to pre-create
+	•	projects: clientId+status
+	•	proposals: clientId+status, leadId+status
+	•	invoices: clientId+status
+	•	tickets: clientId+status+priority
+	•	meetings: leadId+startTime, clientId+startTime
+
+⸻
+
+Build order
+	1.	Auth, users, roles, rules
+	2.	Leads API + spam protection + reminders
+	3.	Scheduler with slot holds + ICS
+	4.	Meetings upload + Whisper transcription
+	5.	Proposal render + signer + Stripe deposit flow
+	6.	Repo + Vercel provisioning
+	7.	Client portal upload + copy generator + auto advance
+	8.	QA runner + tickets + admin Go Live
+	9.	Care plan checkout + monthly report job
+	10.	Support inbox + SLA watcher + change orders
+
+⸻
+
+Deliverables
+	•	Next.js app (public site, admin panel, client portal).
+	•	Firestore rules + indexes.
+	•	All Cloud Functions stubs implemented.
+	•	GitHub repo connected, GitHub Actions CI for deploy.
+	•	Secrets config file listing: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, OPENAI_API_KEY, GOOGLE_SERVICE_ACCOUNT, GITHUB_APP, VERCEL_TOKEN, APP_ORIGIN, EMAIL_FROM.
+	•	README with setup + test checklist.
+
+⸻
+
+Final output required:
+	1.	Firestore collections + indexes deployed.
+	2.	Functions list with triggers + regions.
+	3.	Security rules file.
+	4.	GitHub Actions CI config.
+	5.	Checklist to verify full lead→proposal→invoice→project→launch→care flow.
+
+⸻
+
+Would you like me to now draft the starter Firestore rules file + function stubs so you can drop them straight into Firebase Studio and deploy skeleton v1?

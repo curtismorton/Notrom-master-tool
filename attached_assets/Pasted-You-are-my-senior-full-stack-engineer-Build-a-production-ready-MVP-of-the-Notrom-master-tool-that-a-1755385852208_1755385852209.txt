@@ -1,0 +1,156 @@
+You are my senior full stack engineer. Build a production ready MVP of the Notrom master tool that automates a web dev agency from lead to launch to monthly care with minimal manual work. Use Firebase on the free tier where possible. Keep cost low and performance high.
+
+
+Goals
+	1.	Capture leads, book discovery calls, transcribe recordings, generate proposals, take deposits, provision a project, collect assets, draft copy, deploy previews, run QA, launch, enroll the client on a Care plan, send monthly reports.
+	2.	Operate as a single app with an admin side for me and a client portal for customers.
+	3.	All data in Firestore. Files in Firebase Storage. Auth with Firebase Auth. Backend automations in Cloud Functions. Scheduling via Cloud Scheduler. Payments and subscriptions in Stripe. AI with Whisper for transcription and OpenAI for copy and proposals. Emails via Gmail API.
+	4.	Ship to Firebase Hosting or App Hosting with CI and controlled releases.
+	5.	Clear security, logging, and error handling. Document everything.
+
+
+Possibly need to change tech stack?
+	•	Next.js app in the app directory
+	•	Firebase Auth email and Google
+	•	Firestore for data
+	•	Firebase Storage for uploads and generated 
+
+
+PDFs
+	•	Cloud Functions TypeScript for HTTPS and background jobs
+	•	Cloud Scheduler for cron jobs
+	•	Stripe for Checkout, Invoices, webhooks
+	•	Gmail API for transactional mail with ICS attachments for calendar invites
+	•	Headless Chromium in a Function for HTML to PDF rendering
+	•	Optional Vercel API calls to provision client sites after deposit
+
+
+Data model in Firestore
+Create collections with the following fields and composite indexes where needed.
+	1.	leads
+	•	name, company, email, phone, source, notes
+	•	score number, status one of new qualified discovery_booked proposal_sent won lost
+	•	createdAt, updatedAt
+
+	2.	clients
+
+	•	company, legalName, vat, primaryContact { name email phone }, billingEmail
+	•	plan one of none care_basic care_plus care_pro
+	•	stripeCustomerId
+	•	createdAt, updatedAt
+
+	3.	projects
+
+	•	clientId, package one of starter standard premium, tech one of nextjs_vercel framer
+	•	status one of intake copy design build qa review live closed
+	•	repoUrl, stagingUrl, productionUrl
+	•	milestones { intakeDate liveDate }
+	•	createdAt, updatedAt
+
+	4.	proposals
+
+	•	leadId or clientId, package, price, currency
+	•	status one of draft sent signed declined
+	•	pdfUrl, signatureStatus, signedAt
+	•	createdAt, updatedAt
+
+	5.	invoices
+
+	•	clientId, projectId, amount, currency
+	•	stripeInvoiceId, stripePaymentLink
+	•	status one of draft sent paid overdue
+	•	createdAt, updatedAt
+
+	6.	subscriptions
+
+	•	clientId, plan, stripeSubscriptionId
+	•	status one of active on_hold canceled
+	•	currentPeriodEnd
+	•	createdAt, updatedAt
+
+	7.	meetings
+
+	•	leadId or clientId, type one of discovery kickoff review
+	•	startTime, endTime, timezone
+	•	videoUrl, recordingUrl, transcriptUrl
+	•	aiSummary string, actionItems array of strings
+	•	createdAt, updatedAt
+
+	8.	assets
+
+	•	projectId or clientId
+	•	kind one of logo brandGuide copy media transcript proposal report
+	•	storagePath or externalUrl
+	•	createdAt
+
+	9.	tickets
+
+	•	clientId, projectId
+	•	subject, body
+	•	priority one of low medium high
+	•	status one of open in_progress waiting closed
+	•	slaDueAt
+	•	createdAt, updatedAt
+
+App routes
+Public
+	•	Home, Pricing, Start form at /start, Booking at /schedule
+
+Client portal
+	•	/portal/[clientId] overview, uploads, approved copy, preview links, support requests, invoices, subscription status
+
+Admin
+	•	/admin/leads
+	•	/admin/clients/[id]
+	•	/admin/projects/[id]
+	•	/admin/proposals/[id] with render and send
+	•	/admin/tickets
+
+Core features
+
+Lead capture
+	1.	POST /api/lead receives Start form input. Validates, writes leads doc, computes score, sends warm intro email with booking link. If not booked within 48 hours send reminder.
+
+Scheduler
+2) Replace Calendly with simple in app scheduler. Maintain availability docs. GET /api/availability returns free slots. POST /api/book creates a meeting doc, sends calendar invites as ICS, generates Meet link via Google Calendar API if possible. One hour before the call send reminders.
+
+Transcription and intake
+3) POST /api/transcribe accepts an uploaded m4a or mp4 to Storage, runs Whisper, stores transcript, writes aiSummary and actionItems. If qualified, create clients doc, projects doc with status intake, and proposals doc draft.
+
+Proposal and signing
+4) Render proposals in a branded HTML template then to PDF in a Function. Store in Storage. Provide a simple sign page that records name, timestamp, IP. On sign set status signed and store signedAt. If you can wire a Stripe Checkout with acceptance checkbox that also counts as acceptance.
+
+Payments and provisioning
+5) On proposals status signed create or reuse Stripe customer. Create deposit invoice 40 to 50 percent. Email payment link. On Stripe webhook invoice.paid set invoices status to paid, advance projects status to copy, then provision GitHub repo from a template and Vercel project for staging. Write repoUrl and stagingUrl back to Firestore.
+
+Client portal asset intake and AI copy
+6) Portal allows file upload and a guided content form. On upload generate sitemap and per page copy with OpenAI using a safe system prompt. Store drafts as assets and mark ready for review. If not edited within 24 hours auto advance project to design and open per page GitHub issues with a JSON component spec for Next.js and Tailwind.
+
+Preview and QA
+7) Wire a webhook to capture Vercel preview URLs back into projects. Add a QA function that runs Lighthouse CI and a link checker against the staging URL. Create tickets for any fails.
+
+Launch
+8) An admin Go Live button triggers a launch function that runs final checks, posts DNS instructions, submits sitemaps, fetches production URL, sets project status live, then closes after a grace period.
+
+Care plans and monthly reporting
+9) Offer Care Plus by default using a Stripe Checkout Session. If declined create a 60 day free trial of Care Basic then auto convert. Manage statuses from Stripe webhooks.
+10) Monthly report job per client gathers uptime, Core Web Vitals, simple traffic snapshot if GA4 is connected, completed work, three proposed improvements. Render a one page PDF and email it.
+
+Support desk with SLA
+11) support@ domain routes to POST /api/ticket via Gmail push notifications. AI classifier sets priority and slaDueAt. A scheduled watcher escalates if SLA risk. If scope creep is detected generate a change order with a Stripe Payment Link.
+
+Cloud Functions to implement
+	1.	leadCreate
+	2.	availabilityGet and bookingCreate with ICS helper
+	3.	meetingReminders scheduled
+	4.	transcribeAndSummarise
+	5.	proposalRender and proposalSend and proposalSign
+	6.	createDepositInvoice and stripeWebhook
+	7.	repoProvision and vercelProvision
+	8.	copyGenerator and componentSpecOpener
+	9.	qaRunner and ticketCreator
+	10.	launchOrchestrator
+	11.	carePlanOffer and monthlyReportJob
+	12.	slaWatcher and changeOrderBuilder
+
+any issues with this new plan?
