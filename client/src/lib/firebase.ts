@@ -4,13 +4,32 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getStorage, connectStorageEmulator } from "firebase/storage";
 
+// Default configuration for development
+const defaultConfig = {
+  apiKey: "demo-api-key",
+  authDomain: "demo-project.firebaseapp.com",
+  projectId: "demo-project",
+  storageBucket: "demo-project.firebasestorage.app",
+  messagingSenderId: "123456789",
+  appId: "demo-app-id",
+};
+
+// Check if running in server context (Node.js) vs client context
+const isServer = typeof window === 'undefined';
+
+// Helper function to safely get environment variables
+const getEnvVar = (key: string, defaultValue: string = '') => {
+  if (isServer) return defaultValue;
+  return (import.meta.env as any)?.[key] || defaultValue;
+};
+
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebasestorage.app`,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: getEnvVar('VITE_FIREBASE_API_KEY', defaultConfig.apiKey),
+  authDomain: `${getEnvVar('VITE_FIREBASE_PROJECT_ID', 'demo-project')}.firebaseapp.com`,
+  projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID', defaultConfig.projectId),
+  storageBucket: `${getEnvVar('VITE_FIREBASE_PROJECT_ID', 'demo-project')}.firebasestorage.app`,
+  messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID', defaultConfig.messagingSenderId),
+  appId: getEnvVar('VITE_FIREBASE_APP_ID', defaultConfig.appId),
 };
 
 // Initialize Firebase
@@ -23,7 +42,7 @@ export const functions = getFunctions(app);
 export const storage = getStorage(app);
 
 // Connect to emulators in development
-if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATORS) {
+if (!isServer && getEnvVar('DEV') && getEnvVar('VITE_USE_FIREBASE_EMULATORS')) {
   try {
     connectAuthEmulator(auth, "http://localhost:9099");
     connectFirestoreEmulator(db, "localhost", 8080);
