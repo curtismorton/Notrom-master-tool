@@ -50,8 +50,8 @@ export default function Header({ title, subtitle }: HeaderProps) {
             <i className="fas fa-cog text-lg"></i>
           </button>
           
-          <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-700">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-gray-700">
+            <div className="flex items-center space-x-3">
               <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex items-center justify-center">
                 <span className="text-white font-semibold text-xs">
                   {user?.name?.charAt(0).toUpperCase() || 'U'}
@@ -59,13 +59,15 @@ export default function Header({ title, subtitle }: HeaderProps) {
               </div>
               <span className="text-sm text-gray-300">{user?.name}</span>
             </div>
+            
+            {/* Prominent Sign Out Button */}
             <button 
               onClick={handleLogout}
-              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-all duration-200"
               data-testid="header-logout-button"
-              title="Sign Out"
             >
               <i className="fas fa-sign-out-alt"></i>
+              <span className="text-sm font-medium">Sign Out</span>
             </button>
           </div>
         </div>

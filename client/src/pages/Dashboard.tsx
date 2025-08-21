@@ -9,11 +9,18 @@ import AnalyticsCharts from '@/components/dashboard/AnalyticsCharts';
 import ClientPortal from '@/components/modals/ClientPortal';
 import LeadCaptureForm from '@/components/modals/LeadCaptureForm';
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 
 export default function Dashboard() {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const [showClientPortal, setShowClientPortal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const [, navigate] = useLocation();
+
+  const handleQuickLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   if (loading) {
     return (
@@ -44,6 +51,44 @@ export default function Dashboard() {
 
         {/* Dashboard Content */}
         <main className="p-8 space-y-8">
+          {/* Quick Actions Bar with Easy Sign Out */}
+          <div className="glass rounded-xl p-4 border border-gray-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <h3 className="text-lg font-semibold">Quick Actions</h3>
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => setShowLeadForm(true)}
+                    className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded-lg text-purple-300 transition-all duration-200"
+                    data-testid="quick-add-lead"
+                  >
+                    <i className="fas fa-user-plus mr-2"></i>
+                    Add Lead
+                  </button>
+                  {user?.role === 'client' && (
+                    <button
+                      onClick={() => setShowClientPortal(true)}
+                      className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 rounded-lg text-cyan-300 transition-all duration-200"
+                      data-testid="quick-client-portal"
+                    >
+                      <i className="fas fa-user-circle mr-2"></i>
+                      Client Portal
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Prominent Sign Out Button */}
+              <button
+                onClick={handleQuickLogout}
+                className="flex items-center space-x-2 px-6 py-2 bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 rounded-lg text-red-400 hover:text-red-300 transition-all duration-200 font-medium"
+                data-testid="dashboard-logout-button"
+              >
+                <i className="fas fa-sign-out-alt"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
           {user.role === 'client' ? (
             <>
               {/* Client Portal Content */}
