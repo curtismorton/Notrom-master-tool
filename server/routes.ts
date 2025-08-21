@@ -82,6 +82,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Development helper endpoints - only in development
+  if (process.env.NODE_ENV === 'development') {
+    // Create demo users endpoint
+    app.post("/api/dev/create-demo-user", (req, res) => {
+      const { role } = req.body;
+      const demoUser = {
+        id: `demo-${role}-${Date.now()}`,
+        email: `${role}@demo.com`,
+        name: `Demo ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        role: role || 'admin',
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      
+      res.json({ 
+        success: true, 
+        user: demoUser,
+        message: `Demo ${role} user created. You can now sign in with email: ${demoUser.email} and any password.`
+      });
+    });
+
+    // Get demo credentials endpoint
+    app.get("/api/dev/demo-credentials", (req, res) => {
+      res.json({
+        credentials: [
+          {
+            role: 'admin',
+            email: 'admin@demo.com',
+            password: 'password123',
+            description: 'Full admin access to all features'
+          },
+          {
+            role: 'staff',
+            email: 'staff@demo.com', 
+            password: 'password123',
+            description: 'Staff access to client management'
+          },
+          {
+            role: 'client',
+            email: 'client@demo.com',
+            password: 'password123', 
+            description: 'Client portal access'
+          }
+        ]
+      });
+    });
+  }
+
   // Health check endpoint
   app.get("/health", (req, res) => {
     res.json({ 

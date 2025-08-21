@@ -53,6 +53,11 @@ export default function Home() {
           </Link>
           
           <div className="flex items-center space-x-4">
+            <Link href="/dev">
+              <Button variant="ghost" className="text-xs bg-gray-800/50 hover:bg-gray-700" data-testid="nav-dev">
+                Dev Access
+              </Button>
+            </Link>
             <Link href="/login">
               <Button variant="ghost" data-testid="nav-login">
                 Sign In

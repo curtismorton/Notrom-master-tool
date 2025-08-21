@@ -8,6 +8,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 // Pages
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
+import DevLogin from "@/pages/DevLogin";
 import Dashboard from "@/pages/Dashboard";
 import LeadCapture from "@/pages/LeadCapture";
 import Scheduler from "@/pages/Scheduler";
@@ -29,6 +30,7 @@ function Router() {
       {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
+      <Route path="/dev" component={DevLogin} />
       <Route path="/start" component={LeadCapture} />
       <Route path="/schedule" component={Scheduler} />
       
