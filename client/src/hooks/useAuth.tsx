@@ -31,6 +31,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for demo session first
+    const demoUserStr = sessionStorage.getItem('demoUser');
+    if (demoUserStr) {
+      try {
+        const demoUser = JSON.parse(demoUserStr);
+        setUser(demoUser);
+        setLoading(false);
+        return;
+      } catch (error) {
+        sessionStorage.removeItem('demoUser');
+      }
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setFirebaseUser(firebaseUser);
       
@@ -80,6 +93,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    // Check if we're using demo credentials
+    const isDemoUser = email.endsWith('@demo.com') && password === 'password123';
+    
+    if (isDemoUser) {
+      // Create mock user for demo
+      const role = email.split('@')[0] as 'admin' | 'staff' | 'client';
+      const demoUser: User = {
+        id: `demo-${role}-${Date.now()}`,
+        email,
+        name: `Demo ${role.charAt(0).toUpperCase() + role.slice(1)}`,
+        role,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+      
+      // Store in sessionStorage for persistence
+      sessionStorage.setItem('demoUser', JSON.stringify(demoUser));
+      setUser(demoUser);
+      return;
+    }
+    
     await signInWithEmailAndPassword(auth, email, password);
   };
 
@@ -104,7 +138,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
-    await signOut(auth);
+    // Clear demo session if exists
+    sessionStorage.removeItem('demoUser');
+    setUser(null);
+    
+    try {
+      await signOut(auth);
+    } catch (error) {
+      // Ignore Firebase signOut errors in demo mode
+      console.log('Firebase signOut skipped in demo mode');
+    }
   };
 
   const value = {

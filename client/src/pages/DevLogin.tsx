@@ -111,13 +111,13 @@ export default function DevLogin() {
               </Link>
             </div>
 
-            <div className="bg-gray-900/50 rounded-lg p-4 text-sm text-gray-400">
-              <h3 className="font-semibold text-white mb-2">Development Mode Notice:</h3>
-              <ul className="space-y-1">
-                <li>• Firebase is running with demo configuration</li>
-                <li>• All data is temporary and will be reset</li>
-                <li>• External services (Stripe, OpenAI) may not be fully functional</li>
-                <li>• This page is only available in development mode</li>
+            <div className="bg-green-900/20 border border-green-600/30 rounded-lg p-4 text-sm">
+              <h3 className="font-semibold text-green-400 mb-2">✅ No API Keys Required!</h3>
+              <ul className="space-y-1 text-green-200">
+                <li>• Demo authentication bypasses Firebase completely</li>
+                <li>• Click any "Login as..." button above to access the dashboard</li>
+                <li>• All features work without external API keys</li>
+                <li>• Session persists during development</li>
               </ul>
             </div>
           </CardContent>
