@@ -8,7 +8,7 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <header className="glass border-b border-gray-800 px-8 py-4 sticky top-0 z-40">
@@ -42,6 +42,25 @@ export default function Header({ title, subtitle }: HeaderProps) {
           >
             <i className="fas fa-cog text-lg"></i>
           </button>
+          
+          <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-700">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500 flex items-center justify-center">
+                <span className="text-white font-semibold text-xs">
+                  {user?.name?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+              <span className="text-sm text-gray-300">{user?.name}</span>
+            </div>
+            <button 
+              onClick={logout}
+              className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+              data-testid="header-logout-button"
+              title="Sign Out"
+            >
+              <i className="fas fa-sign-out-alt"></i>
+            </button>
+          </div>
         </div>
       </div>
     </header>
