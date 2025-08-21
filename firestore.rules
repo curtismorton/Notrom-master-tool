@@ -1,0 +1,165 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'admin';
+    }
+    
+    function isStaff() {
+      return isAuthenticated() && 
+             (request.auth.token.role == 'staff' || request.auth.token.role == 'admin');
+    }
+    
+    function isClient() {
+      return isAuthenticated() && 
+             request.auth.token.role == 'client';
+    }
+    
+    function isOwner(clientId) {
+      return isClient() && 
+             request.auth.token.clientId == clientId;
+    }
+    
+    function belongsToUser() {
+      return isAuthenticated() && 
+             request.auth.uid == resource.data.userId;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+    }
+
+    // Leads collection
+    match /leads/{leadId} {
+      allow read, write: if isStaff();
+      allow create: if true; // Allow public lead creation from website
+    }
+
+    // Clients collection
+    match /clients/{clientId} {
+      allow read: if isStaff() || isOwner(clientId);
+      allow write: if isStaff();
+    }
+
+    // Projects collection
+    match /projects/{projectId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+    }
+
+    // Proposals collection
+    match /proposals/{proposalId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId) ||
+                     (isClient() && resource.data.leadId != null);
+      allow write: if isStaff();
+      allow update: if isAuthenticated() && 
+                       resource.data.status == 'sent' && 
+                       request.resource.data.status == 'signed' &&
+                       request.resource.data.signedAt is timestamp;
+    }
+
+    // Invoices collection
+    match /invoices/{invoiceId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{subscriptionId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+    }
+
+    // Meetings collection
+    match /meetings/{meetingId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+    }
+
+    // Assets collection
+    match /assets/{assetId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+      // Allow clients to upload to tmp directory
+      allow create: if isClient() && 
+                       request.resource.data.storagePath.matches('tmp/.*') &&
+                       request.resource.data.clientId == request.auth.token.clientId;
+    }
+
+    // Tickets collection
+    match /tickets/{ticketId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+      allow create: if isClient() && 
+                       request.resource.data.clientId == request.auth.token.clientId;
+    }
+
+    // Audit logs collection
+    match /logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write logs
+    }
+
+    // Activities collection (for dashboard)
+    match /activities/{activityId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if false; // Only Cloud Functions can write activities
+    }
+
+    // Reports collection
+    match /reports/{reportId} {
+      allow read: if isStaff() || 
+                     (isClient() && request.auth.token.clientId == resource.data.clientId);
+      allow write: if isStaff();
+    }
+
+    // Processed events (for Stripe webhook idempotency)
+    match /processed_events/{eventId} {
+      allow read, write: if false; // Only Cloud Functions
+    }
+
+    // Scheduled emails
+    match /scheduled_emails/{emailId} {
+      allow read, write: if false; // Only Cloud Functions
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isStaff();
+      allow write: if false; // Only Cloud Functions
+    }
+
+    // Holds collection (for scheduler collision prevention)
+    match /holds/{holdId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Availability collection (for scheduler)
+    match /availability/{availabilityId} {
+      allow read: if true; // Public read for booking widget
+      allow write: if isStaff();
+    }
+
+    // Default deny rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
