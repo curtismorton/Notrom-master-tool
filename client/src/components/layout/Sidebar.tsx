@@ -14,7 +14,12 @@ const navigation = [
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   if (!user || user.role === 'client') {
     return null;
@@ -80,9 +85,10 @@ export default function Sidebar() {
               <p className="text-xs text-gray-400 capitalize" data-testid="user-role">{user?.role}</p>
             </div>
             <button 
-              onClick={logout}
-              className="text-gray-400 hover:text-white transition-colors"
+              onClick={handleLogout}
+              className="text-gray-400 hover:text-red-400 transition-colors"
               data-testid="logout-button"
+              title="Sign Out"
             >
               <i className="fas fa-sign-out-alt"></i>
             </button>

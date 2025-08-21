@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useLocation } from 'wouter';
 
 interface HeaderProps {
   title: string;
@@ -9,6 +10,12 @@ interface HeaderProps {
 export default function Header({ title, subtitle }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
 
   return (
     <header className="glass border-b border-gray-800 px-8 py-4 sticky top-0 z-40">
@@ -53,7 +60,7 @@ export default function Header({ title, subtitle }: HeaderProps) {
               <span className="text-sm text-gray-300">{user?.name}</span>
             </div>
             <button 
-              onClick={logout}
+              onClick={handleLogout}
               className="p-2 text-gray-400 hover:text-red-400 transition-colors"
               data-testid="header-logout-button"
               title="Sign Out"

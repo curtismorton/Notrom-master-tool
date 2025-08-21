@@ -149,9 +149,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Ignore Firebase signOut errors in demo mode
       console.log('Firebase signOut skipped in demo mode');
     }
-    
-    // Force redirect to home page
-    window.location.href = '/';
   };
 
   const value = {
