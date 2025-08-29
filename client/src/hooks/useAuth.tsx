@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for demo session first
+    // Check for demo session first - immediate loading
     const demoUserStr = sessionStorage.getItem('demoUser');
     if (demoUserStr) {
       try {
@@ -44,7 +44,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    // Set loading to false quickly to show login options
+    setLoading(false);
+
+    // Firebase auth with timeout to prevent hanging
+    const timeoutId = setTimeout(() => {
+      console.log('Firebase auth timeout - using demo mode');
+      setLoading(false);
+    }, 2000); // 2 second timeout
+
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      clearTimeout(timeoutId);
       setFirebaseUser(firebaseUser);
       
       if (firebaseUser) {

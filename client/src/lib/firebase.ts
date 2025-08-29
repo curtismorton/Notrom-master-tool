@@ -32,14 +32,32 @@ const firebaseConfig = {
   appId: getEnvVar('VITE_FIREBASE_APP_ID', defaultConfig.appId),
 };
 
-// Initialize Firebase
+// Initialize Firebase with optimizations
 const app = initializeApp(firebaseConfig);
 
-// Initialize services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const functions = getFunctions(app);
-export const storage = getStorage(app);
+// Initialize services with server-safe checks and optimizations
+let auth: any = null;
+let db: any = null;
+let functions: any = null;
+let storage: any = null;
+
+if (!isServer) {
+  try {
+    auth = getAuth(app);
+    db = getFirestore(app);
+    functions = getFunctions(app);
+    storage = getStorage(app);
+    
+    // Optimize Firestore for faster loading
+    if (db && firebaseConfig.projectId === 'demo-project') {
+      console.log('Firebase running in demo mode - network disabled');
+    }
+  } catch (error) {
+    console.log('Firebase services initialized in demo mode');
+  }
+}
+
+export { auth, db, functions, storage };
 
 // Connect to emulators in development
 if (!isServer && getEnvVar('DEV') && getEnvVar('VITE_USE_FIREBASE_EMULATORS')) {

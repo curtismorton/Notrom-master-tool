@@ -28,6 +28,7 @@ export default function Dashboard() {
         <div className="glass rounded-2xl p-8">
           <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-gray-400">Loading dashboard...</p>
+          <p className="text-xs text-gray-500 mt-2">Demo mode available at /dev</p>
         </div>
       </div>
     );
