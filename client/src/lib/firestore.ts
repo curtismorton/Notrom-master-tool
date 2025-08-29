@@ -31,19 +31,19 @@ import type {
   DashboardStats
 } from '@shared/schema';
 
-// Collection references
-export const usersCollection = collection(db, 'users') as CollectionReference<User>;
-export const leadsCollection = collection(db, 'leads') as CollectionReference<Lead>;
-export const clientsCollection = collection(db, 'clients') as CollectionReference<Client>;
-export const projectsCollection = collection(db, 'projects') as CollectionReference<Project>;
-export const proposalsCollection = collection(db, 'proposals') as CollectionReference<Proposal>;
-export const invoicesCollection = collection(db, 'invoices') as CollectionReference<Invoice>;
-export const subscriptionsCollection = collection(db, 'subscriptions') as CollectionReference<Subscription>;
-export const meetingsCollection = collection(db, 'meetings') as CollectionReference<Meeting>;
-export const assetsCollection = collection(db, 'assets') as CollectionReference<Asset>;
-export const ticketsCollection = collection(db, 'tickets') as CollectionReference<Ticket>;
-export const logsCollection = collection(db, 'logs') as CollectionReference<AuditLog>;
-export const activitiesCollection = collection(db, 'activities') as CollectionReference<Activity>;
+// Collection references disabled for demo mode
+export const usersCollection = null;
+export const leadsCollection = null;
+export const clientsCollection = null;
+export const projectsCollection = null;
+export const proposalsCollection = null;
+export const invoicesCollection = null;
+export const subscriptionsCollection = null;
+export const meetingsCollection = null;
+export const assetsCollection = null;
+export const ticketsCollection = null;
+export const logsCollection = null;
+export const activitiesCollection = null;
 
 // User operations
 export const getUserById = async (id: string): Promise<User | null> => {

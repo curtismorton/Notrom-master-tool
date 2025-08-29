@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
-import { getClients } from '@/lib/firestore';
+import { getClients } from '@/lib/firestoreDemo';
 import type { Client } from '@shared/schema';
 
 const planColors = {
@@ -28,6 +28,7 @@ const planLabels = {
 export default function Clients() {
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: clients, isLoading } = useQuery<Client[]>({
     queryKey: ['/api/clients'],
@@ -51,9 +52,13 @@ export default function Clients() {
   if (isLoading) {
     return (
       <div className="bg-gray-950 text-white min-h-screen">
-        <Sidebar />
-        <div className="ml-64">
-          <Header title="Clients" subtitle="Loading clients..." />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="lg:ml-64">
+          <Header 
+            title="Clients" 
+            subtitle="Loading clients..." 
+            onMenuClick={() => setSidebarOpen(true)}
+          />
           <main className="p-8">
             <div className="animate-pulse space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -68,12 +73,13 @@ export default function Clients() {
 
   return (
     <div className="bg-gray-950 text-white min-h-screen">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      <div className="ml-64">
+      <div className="lg:ml-64">
         <Header 
           title="Client Management" 
           subtitle="Manage client relationships and care plans" 
+          onMenuClick={() => setSidebarOpen(true)}
         />
         
         <main className="p-8 space-y-8">

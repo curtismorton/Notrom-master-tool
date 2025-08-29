@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getRecentActivities } from '@/lib/firestore';
+import { getActivities } from '@/lib/firestoreDemo';
 import type { Activity } from '@shared/schema';
 
 const activityIcons = {
@@ -35,7 +35,7 @@ function formatTimestamp(timestamp: number): string {
 export default function ActivityFeed() {
   const { data: activities, isLoading } = useQuery<Activity[]>({
     queryKey: ['/api/activities/recent'],
-    queryFn: () => getRecentActivities(10),
+    queryFn: () => getActivities(),
     refetchInterval: 15000,
   });
 

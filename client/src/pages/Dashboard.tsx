@@ -1,4 +1,4 @@
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/hooks/useAuthDemo';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 import StatsOverview from '@/components/dashboard/StatsOverview';
@@ -15,6 +15,7 @@ export default function Dashboard() {
   const { user, loading, logout } = useAuth();
   const [showClientPortal, setShowClientPortal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [, navigate] = useLocation();
 
   const handleQuickLogout = async () => {
@@ -41,23 +42,27 @@ export default function Dashboard() {
   return (
     <div className="bg-gray-950 text-white font-sans overflow-x-hidden min-h-screen">
       {/* Navigation Sidebar */}
-      <Sidebar />
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)} 
+      />
 
       {/* Main Content */}
-      <div className={user.role === 'client' ? 'min-h-screen' : 'ml-64 min-h-screen'}>
+      <div className={user.role === 'client' ? 'min-h-screen' : 'lg:ml-64 min-h-screen'}>
         <Header 
           title={user.role === 'client' ? 'Your Project' : 'Dashboard'}
           subtitle={user.role === 'client' ? 'Track your project progress and communicate with our team' : "Welcome back! Here's what's happening today."}
+          onMenuClick={() => setSidebarOpen(true)}
         />
 
         {/* Dashboard Content */}
-        <main className="p-8 space-y-8">
+        <main className="p-4 lg:p-8 space-y-6 lg:space-y-8">
           {/* Quick Actions Bar with Easy Sign Out */}
           <div className="glass rounded-xl p-4 border border-gray-800">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <h3 className="text-lg font-semibold">Quick Actions</h3>
-                <div className="flex space-x-3">
+                <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => setShowLeadForm(true)}
                     className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/30 rounded-lg text-purple-300 transition-all duration-200"
@@ -82,7 +87,7 @@ export default function Dashboard() {
               {/* Prominent Sign Out Button */}
               <button
                 onClick={handleQuickLogout}
-                className="flex items-center space-x-2 px-6 py-2 bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 rounded-lg text-red-400 hover:text-red-300 transition-all duration-200 font-medium"
+                className="flex items-center justify-center space-x-2 px-4 sm:px-6 py-2 bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 rounded-lg text-red-400 hover:text-red-300 transition-all duration-200 font-medium w-full sm:w-auto"
                 data-testid="dashboard-logout-button"
               >
                 <i className="fas fa-sign-out-alt"></i>
@@ -115,7 +120,7 @@ export default function Dashboard() {
               {/* Admin Dashboard */}
               <StatsOverview />
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <ProjectPipeline />
                 <ActivityFeed />
               </div>

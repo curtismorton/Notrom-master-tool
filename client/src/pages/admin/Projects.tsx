@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
-import { getProjects } from '@/lib/firestore';
+import { getProjects } from '@/lib/firestoreDemo';
 import type { Project } from '@shared/schema';
 
 const statusColors = {
@@ -37,15 +37,13 @@ function calculateProgress(project: Project): number {
 
 export default function Projects() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [packageFilter, setPackageFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: projects, isLoading } = useQuery<Project[]>({
     queryKey: ['/api/projects', statusFilter],
-    queryFn: () => getProjects(
-      undefined, 
-      statusFilter === 'all' ? undefined : [statusFilter]
-    ),
+    queryFn: () => getProjects(),
     refetchInterval: 10000,
   });
 
@@ -64,9 +62,13 @@ export default function Projects() {
   if (isLoading) {
     return (
       <div className="bg-gray-950 text-white min-h-screen">
-        <Sidebar />
-        <div className="ml-64">
-          <Header title="Projects" subtitle="Loading projects..." />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="lg:ml-64">
+          <Header 
+            title="Projects" 
+            subtitle="Loading projects..." 
+            onMenuClick={() => setSidebarOpen(true)}
+          />
           <main className="p-8">
             <div className="animate-pulse space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -81,12 +83,13 @@ export default function Projects() {
 
   return (
     <div className="bg-gray-950 text-white min-h-screen">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      <div className="ml-64">
+      <div className="lg:ml-64">
         <Header 
           title="Project Management" 
           subtitle="Track project progress and deliverables" 
+          onMenuClick={() => setSidebarOpen(true)}
         />
         
         <main className="p-8 space-y-8">

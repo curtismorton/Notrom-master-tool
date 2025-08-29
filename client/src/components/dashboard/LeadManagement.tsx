@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { getLeads } from '@/lib/firestore';
+import { getLeads } from '@/lib/firestoreDemo';
 import type { Lead } from '@shared/schema';
 
 const statusColors = {
@@ -30,7 +30,7 @@ function getScoreColor(score: number) {
 export default function LeadManagement() {
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ['/api/leads', 'recent'],
-    queryFn: () => getLeads({ limit: 5 }),
+    queryFn: () => getLeads(),
     refetchInterval: 30000,
   });
 

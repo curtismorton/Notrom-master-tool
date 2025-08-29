@@ -32,43 +32,34 @@ const firebaseConfig = {
   appId: getEnvVar('VITE_FIREBASE_APP_ID', defaultConfig.appId),
 };
 
-// Initialize Firebase with optimizations
-const app = initializeApp(firebaseConfig);
+// For demo mode - create completely disabled Firebase instances
+const createDemoFirebaseInstance = () => ({
+  // Mock auth methods to prevent connection attempts
+  onAuthStateChanged: () => () => {}, // Returns unsubscribe function
+  signInWithEmailAndPassword: () => Promise.resolve(),
+  signOut: () => Promise.resolve(),
+  currentUser: null
+});
 
-// Initialize services with server-safe checks and optimizations
-let auth: any = null;
-let db: any = null;
-let functions: any = null;
-let storage: any = null;
+const createDemoFirestore = () => ({
+  collection: () => ({
+    doc: () => ({
+      get: () => Promise.resolve({ exists: false, data: () => null }),
+      set: () => Promise.resolve(),
+      update: () => Promise.resolve(),
+      delete: () => Promise.resolve()
+    })
+  })
+});
 
-if (!isServer) {
-  try {
-    auth = getAuth(app);
-    db = getFirestore(app);
-    functions = getFunctions(app);
-    storage = getStorage(app);
-    
-    // Optimize Firestore for faster loading
-    if (db && firebaseConfig.projectId === 'demo-project') {
-      console.log('Firebase running in demo mode - network disabled');
-    }
-  } catch (error) {
-    console.log('Firebase services initialized in demo mode');
-  }
-}
+// Completely disabled Firebase services for demo mode
+export const auth = isServer ? null : createDemoFirebaseInstance();
+export const db = isServer ? null : createDemoFirestore();  
+export const functions = null;
+export const storage = null;
 
-export { auth, db, functions, storage };
+// Skip Firebase initialization completely
+console.log('Firebase completely disabled - demo mode active');
 
-// Connect to emulators in development
-if (!isServer && getEnvVar('DEV') && getEnvVar('VITE_USE_FIREBASE_EMULATORS')) {
-  try {
-    connectAuthEmulator(auth, "http://localhost:9099");
-    connectFirestoreEmulator(db, "localhost", 8080);
-    connectFunctionsEmulator(functions, "localhost", 5001);
-    connectStorageEmulator(storage, "localhost", 9199);
-  } catch (error) {
-    console.log("Firebase emulators already connected");
-  }
-}
-
-export default app;
+// No emulators needed in demo mode
+export default null;
