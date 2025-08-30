@@ -6,6 +6,7 @@ import ProjectPipeline from '@/components/dashboard/ProjectPipeline';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import LeadManagement from '@/components/dashboard/LeadManagement';
 import AnalyticsCharts from '@/components/dashboard/AnalyticsCharts';
+import WebsitePlanner from '@/components/dashboard/WebsitePlanner';
 import ClientPortal from '@/components/modals/ClientPortal';
 import LeadCaptureForm from '@/components/modals/LeadCaptureForm';
 import { useState } from 'react';
@@ -126,6 +127,8 @@ export default function Dashboard() {
               </div>
 
               <LeadManagement />
+
+              <WebsitePlanner />
 
               <AnalyticsCharts />
             </>

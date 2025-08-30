@@ -190,3 +190,68 @@ export interface Activity {
   clientId?: string;
   projectId?: string;
 }
+
+// Website Planning Types
+export interface WebsiteBrief {
+  id: string;
+  clientId: string;
+  projectId?: string;
+  businessName: string;
+  industry: string;
+  targetAudience: string;
+  goals: string[];
+  competitors: string[];
+  brandPersonality: string;
+  preferredColors: string[];
+  contentNeeds: string[];
+  specialRequirements: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface WebsitePlan {
+  id: string;
+  briefId: string;
+  copyPlan: {
+    homepage: {
+      headline: string;
+      subheadline: string;
+      heroDescription: string;
+      ctaText: string;
+    };
+    about: {
+      story: string;
+      mission: string;
+      values: string[];
+    };
+    services: Array<{
+      name: string;
+      description: string;
+      benefits: string[];
+    }>;
+    testimonials: {
+      strategy: string;
+      sampleQuestions: string[];
+    };
+  };
+  assetRequirements: {
+    photography: string[];
+    graphics: string[];
+    videos: string[];
+    documents: string[];
+  };
+  contentStrategy: {
+    brandVoice: string;
+    tonalGuidelines: string[];
+    messagingPillars: string[];
+    contentPriorities: string[];
+  };
+  technicalSpecs: {
+    features: string[];
+    integrations: string[];
+    performanceTargets: string[];
+  };
+  status: 'draft' | 'review' | 'approved';
+  createdAt: number;
+  updatedAt: number;
+}
