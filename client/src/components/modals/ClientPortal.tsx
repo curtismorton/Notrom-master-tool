@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuthDemo';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface ClientPortalProps {
   isOpen: boolean;
@@ -41,7 +41,7 @@ export default function ClientPortal({ isOpen, onClose, projectId }: ClientPorta
             Client Portal - {user.name}
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6 p-6">
           {/* Project Status */}
           <Card className="glass border-gray-800">

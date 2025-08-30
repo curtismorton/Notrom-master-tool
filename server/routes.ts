@@ -3,10 +3,37 @@ import { createServer, type Server } from "http";
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../client/src/lib/firebase';
 
+// Demo mode responses
+const demoResponses = {
+  leadCreate: { success: true, id: 'demo-lead-' + Date.now() },
+  transcribeAndSummarize: { 
+    transcript: 'Demo transcript text',
+    summary: 'Demo meeting summary',
+    keyPoints: ['Demo point 1', 'Demo point 2']
+  },
+  proposalGenerate: { 
+    success: true, 
+    proposalId: 'demo-proposal-' + Date.now(),
+    downloadUrl: '/demo-proposal.pdf'
+  },
+  monthlyReports: { 
+    success: true, 
+    reportId: 'demo-report-' + Date.now(),
+    downloadUrl: '/demo-report.pdf'
+  },
+  stripeWebhook: { received: true }
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Lead creation endpoint
   app.post("/api/leads", async (req, res) => {
     try {
+      // Demo mode - return mock response
+      if (!functions) {
+        res.json(demoResponses.leadCreate);
+        return;
+      }
+      
       const leadCreate = httpsCallable(functions, 'leadCreate');
       const result = await leadCreate(req.body);
       res.json(result.data);
@@ -22,6 +49,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meeting transcription endpoint
   app.post("/api/transcribe", async (req, res) => {
     try {
+      // Demo mode - return mock response
+      if (!functions) {
+        res.json(demoResponses.transcribeAndSummarize);
+        return;
+      }
+      
       const transcribeFunction = httpsCallable(functions, 'transcribeAndSummarize');
       const result = await transcribeFunction(req.body);
       res.json(result.data);
@@ -37,6 +70,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Proposal generation endpoint
   app.post("/api/proposals/generate", async (req, res) => {
     try {
+      // Demo mode - return mock response
+      if (!functions) {
+        res.json(demoResponses.proposalGenerate);
+        return;
+      }
+      
       const proposalGenerate = httpsCallable(functions, 'proposalGenerate');
       const result = await proposalGenerate(req.body);
       res.json(result.data);
@@ -52,6 +91,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Monthly reports endpoint
   app.post("/api/reports/monthly", async (req, res) => {
     try {
+      // Demo mode - return mock response
+      if (!functions) {
+        res.json(demoResponses.monthlyReports);
+        return;
+      }
+      
       const monthlyReports = httpsCallable(functions, 'monthlyReports');
       const result = await monthlyReports(req.body);
       res.json(result.data);
@@ -67,6 +112,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook endpoint
   app.post("/api/stripe/webhook", async (req, res) => {
     try {
+      // Demo mode - return mock response
+      if (!functions) {
+        res.json(demoResponses.stripeWebhook);
+        return;
+      }
+      
       const stripeWebhook = httpsCallable(functions, 'stripeWebhook');
       const result = await stripeWebhook({
         signature: req.headers['stripe-signature'],
