@@ -50,13 +50,7 @@ export default function Header({ title, subtitle, onMenuClick }: HeaderProps) {
             />
             <i className="fas fa-search absolute left-3 top-3 text-gray-400"></i>
           </div>
-          <button 
-            className="relative p-2 text-gray-400 hover:text-white transition-colors"
-            data-testid="notifications-button"
-          >
-            <i className="fas fa-bell text-lg"></i>
-            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+          
           <button 
             className="p-2 text-gray-400 hover:text-white transition-colors"
             data-testid="settings-button"

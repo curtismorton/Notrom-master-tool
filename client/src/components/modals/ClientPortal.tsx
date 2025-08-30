@@ -35,14 +35,14 @@ export default function ClientPortal({ isOpen, onClose, projectId }: ClientPorta
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass border border-gray-800 max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="glass border border-gray-800">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold">
             Client Portal - {user.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6 pt-0">
           {/* Project Status */}
           <Card className="glass border-gray-800">
             <CardHeader>

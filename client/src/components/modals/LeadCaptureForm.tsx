@@ -93,13 +93,13 @@ export default function LeadCaptureForm({ isOpen, onClose }: LeadCaptureFormProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="glass border border-gray-800 max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="glass border border-gray-800">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-2xl font-bold">New Lead</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-6 pt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}

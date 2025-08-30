@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: 'fas fa-home' },
-  { name: 'Leads', href: '/admin/leads', icon: 'fas fa-user-plus', badge: '12', badgeColor: 'bg-cyan-500' },
-  { name: 'Projects', href: '/admin/projects', icon: 'fas fa-tasks', badge: '5', badgeColor: 'bg-purple-500' },
+  { name: 'Leads', href: '/admin/leads', icon: 'fas fa-user-plus' },
+  { name: 'Projects', href: '/admin/projects', icon: 'fas fa-tasks' },
   { name: 'Clients', href: '/admin/clients', icon: 'fas fa-users' },
-  { name: 'Proposals', href: '/admin/proposals', icon: 'fas fa-file-contract', badge: '3', badgeColor: 'bg-green-500' },
-  { name: 'Support', href: '/admin/support', icon: 'fas fa-headset', badge: '2', badgeColor: 'bg-red-500' },
+  { name: 'Proposals', href: '/admin/proposals', icon: 'fas fa-file-contract' },
+  { name: 'Support', href: '/admin/support', icon: 'fas fa-headset' },
 ];
 
 interface SidebarProps {
