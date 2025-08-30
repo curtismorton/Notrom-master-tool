@@ -10,6 +10,18 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { User } from '@shared/schema';
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
