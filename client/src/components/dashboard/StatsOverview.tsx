@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getDashboardStats } from '@/lib/firestore';
+import { getDashboardStats } from '@/lib/firestoreDemo';
 import type { DashboardStats } from '@shared/schema';
 
 const StatCard = ({ title, value, icon, change, trend }: {

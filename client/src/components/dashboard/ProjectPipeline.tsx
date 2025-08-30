@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { getProjects } from '@/lib/firestore';
+import { getProjects } from '@/lib/firestoreDemo';
 import type { Project } from '@shared/schema';
 
 const statusColors = {

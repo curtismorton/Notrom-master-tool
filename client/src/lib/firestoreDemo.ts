@@ -93,10 +93,45 @@ const mockProjects: Project[] = [
       intakeDate: Date.now() - 86400000 * 14,
       copyDate: Date.now() - 86400000 * 10,
       designDate: Date.now() - 86400000 * 7,
-      buildDate: Date.now() - 86400000 * 3
+      buildDate: Date.now() - 86400000 * 3,
+      liveDate: Date.now() + 86400000 * 7
     },
     launchChecklistStatus: {},
     createdAt: Date.now() - 86400000 * 14,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'project-2',
+    clientId: 'client-2',
+    package: 'premium',
+    tech: 'nextjs_vercel',
+    status: 'design',
+    milestones: {
+      intakeDate: Date.now() - 86400000 * 7,
+      copyDate: Date.now() - 86400000 * 3,
+      designDate: Date.now(),
+      liveDate: Date.now() + 86400000 * 14
+    },
+    launchChecklistStatus: {},
+    createdAt: Date.now() - 86400000 * 7,
+    updatedAt: Date.now()
+  },
+  {
+    id: 'project-3',
+    clientId: 'client-3',
+    package: 'starter',
+    tech: 'framer',
+    status: 'qa',
+    milestones: {
+      intakeDate: Date.now() - 86400000 * 21,
+      copyDate: Date.now() - 86400000 * 17,
+      designDate: Date.now() - 86400000 * 14,
+      buildDate: Date.now() - 86400000 * 7,
+      qaDate: Date.now() - 86400000 * 2,
+      liveDate: Date.now() + 86400000 * 3
+    },
+    launchChecklistStatus: {},
+    createdAt: Date.now() - 86400000 * 21,
     updatedAt: Date.now()
   }
 ];
@@ -104,25 +139,46 @@ const mockProjects: Project[] = [
 const mockActivities: Activity[] = [
   {
     id: 'activity-1',
-    message: 'New lead John Smith added to pipeline',
+    message: 'New lead <strong>John Smith</strong> from Acme Corp added to pipeline',
     timestamp: Date.now() - 1800000,
     type: 'lead',
     userId: 'demo-admin-1'
   },
   {
     id: 'activity-2',
-    message: 'Project "E-commerce Website" progress updated to 65%',
+    message: 'Project <strong>#project-1</strong> moved to development phase',
     timestamp: Date.now() - 3600000, 
     type: 'project',
+    userId: 'demo-admin-1'
+  },
+  {
+    id: 'activity-3',
+    message: 'Payment received for <strong>Demo Business Ltd</strong> - $2,500',
+    timestamp: Date.now() - 7200000,
+    type: 'payment',
+    userId: 'demo-admin-1'
+  },
+  {
+    id: 'activity-4',
+    message: 'New support ticket opened for <strong>TechStart Inc</strong>',
+    timestamp: Date.now() - 10800000,
+    type: 'support',
+    userId: 'demo-admin-1'
+  },
+  {
+    id: 'activity-5',
+    message: 'Lead <strong>Sarah Johnson</strong> qualified and moved to discovery',
+    timestamp: Date.now() - 14400000,
+    type: 'lead',
     userId: 'demo-admin-1'
   }
 ];
 
 const mockStats: DashboardStats = {
-  leadsThisMonth: 12,
   activeProjects: 5,
   monthlyRevenue: 47500,
-  clientRetentionRate: 92
+  newLeads: 12,
+  careSubscriptions: 8
 };
 
 // Mock functions that simulate Firestore operations
@@ -134,16 +190,36 @@ export async function createUser(userData: User): Promise<void> {
   mockUsers.push(userData);
 }
 
-export async function getLeads(): Promise<Lead[]> {
-  return mockLeads.filter(lead => !lead.isDeleted);
+export async function getLeads(filters?: { status?: string; limit?: number }): Promise<Lead[]> {
+  let filteredLeads = mockLeads.filter(lead => !lead.isDeleted);
+  
+  if (filters?.status) {
+    filteredLeads = filteredLeads.filter(lead => lead.status === filters.status);
+  }
+  
+  if (filters?.limit) {
+    filteredLeads = filteredLeads.slice(0, filters.limit);
+  }
+  
+  return filteredLeads;
 }
 
 export async function getClients(): Promise<Client[]> {
   return mockClients;
 }
 
-export async function getProjects(): Promise<Project[]> {
-  return mockProjects;
+export async function getProjects(clientId?: string, statuses?: string[]): Promise<Project[]> {
+  let filteredProjects = mockProjects;
+  
+  if (clientId) {
+    filteredProjects = filteredProjects.filter(project => project.clientId === clientId);
+  }
+  
+  if (statuses && statuses.length > 0) {
+    filteredProjects = filteredProjects.filter(project => statuses.includes(project.status));
+  }
+  
+  return filteredProjects;
 }
 
 export async function getActivities(): Promise<Activity[]> {
