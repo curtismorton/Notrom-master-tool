@@ -37,9 +37,10 @@ async function getTickets(statusFilter?: string): Promise<Ticket[]> {
     {
       id: 'ticket-1',
       subject: 'Site loading slowly on mobile',
+      body: 'The website takes over 10 seconds to load on mobile devices. This is affecting user experience and potentially causing lost customers. Please investigate and optimize.',
       clientId: 'client-1',
-      priority: 'high',
-      status: 'in_progress',
+      priority: 'high' as const,
+      status: 'in_progress' as const,
       slaDueAt: Date.now() + 86400000 * 2,
       createdAt: Date.now() - 86400000,
       updatedAt: Date.now()
@@ -103,7 +104,7 @@ export default function Support() {
   if (isLoading) {
     return (
       <div className="bg-gray-950 text-white min-h-screen">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="ml-64">
           <Header title="Support" subtitle="Loading tickets..." />
           <main className="p-8">
@@ -120,7 +121,7 @@ export default function Support() {
 
   return (
     <div className="bg-gray-950 text-white min-h-screen">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="ml-64">
         <Header 

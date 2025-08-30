@@ -96,7 +96,7 @@ export default function Proposals() {
 
   return (
     <div className="bg-gray-950 text-white min-h-screen">
-      <Sidebar />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="ml-64">
         <Header 

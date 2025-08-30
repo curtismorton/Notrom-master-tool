@@ -92,7 +92,12 @@ function FileUploadZone({ onUpload, uploading }: FileUploadProps) {
         input.type = 'file';
         input.multiple = true;
         input.accept = 'image/*,.pdf,.doc,.docx,.txt';
-        input.onchange = handleFileSelect;
+        input.onchange = (e) => {
+          const target = e.target as HTMLInputElement;
+          if (target.files && target.files[0]) {
+            onUpload(target.files[0]);
+          }
+        };
         input.click();
       }}
       data-testid="file-upload-zone"
@@ -171,6 +176,16 @@ export default function ClientDashboard() {
       // Create a reference to the file in Firebase Storage
       const timestamp = Date.now();
       const fileName = `${timestamp}-${file.name}`;
+      // Skip file upload in demo mode since Firebase is disabled
+      if (!storage) {
+        toast({
+          title: 'Demo Mode',
+          description: 'File upload is disabled in demo mode.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
       const storageRef = ref(storage, `clients/${clientId}/assets/${fileName}`);
 
       // Upload the file
