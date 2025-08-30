@@ -25,15 +25,28 @@ const packageColors = {
 };
 
 async function getProposals(): Promise<Proposal[]> {
-  const q = query(collection(db, 'proposals'), orderBy('createdAt', 'desc'));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Proposal));
+  // Demo data for proposals
+  return [
+    {
+      id: 'proposal-1',
+      clientId: 'client-1',
+      package: 'standard',
+      price: 15000,
+      currency: 'USD',
+      status: 'sent',
+      version: 1,
+      proposalNumber: 'PROP-2024-001',
+      createdAt: Date.now() - 86400000 * 3,
+      updatedAt: Date.now()
+    }
+  ];
 }
 
 export default function Proposals() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [packageFilter, setPackageFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: proposals, isLoading } = useQuery<Proposal[]>({
     queryKey: ['/api/proposals'],
@@ -62,9 +75,13 @@ export default function Proposals() {
   if (isLoading) {
     return (
       <div className="bg-gray-950 text-white min-h-screen">
-        <Sidebar />
-        <div className="ml-64">
-          <Header title="Proposals" subtitle="Loading proposals..." />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="lg:ml-64">
+          <Header 
+            title="Proposals" 
+            subtitle="Loading proposals..." 
+            onMenuClick={() => setSidebarOpen(true)}
+          />
           <main className="p-8">
             <div className="animate-pulse space-y-4">
               {[...Array(5)].map((_, i) => (

@@ -32,14 +32,25 @@ const statusLabels = {
 };
 
 async function getTickets(statusFilter?: string): Promise<Ticket[]> {
-  let q = query(collection(db, 'tickets'), orderBy('createdAt', 'desc'));
+  // Demo data for tickets
+  const allTickets = [
+    {
+      id: 'ticket-1',
+      subject: 'Site loading slowly on mobile',
+      clientId: 'client-1',
+      priority: 'high',
+      status: 'in_progress',
+      slaDueAt: Date.now() + 86400000 * 2,
+      createdAt: Date.now() - 86400000,
+      updatedAt: Date.now()
+    }
+  ];
   
   if (statusFilter && statusFilter !== 'all') {
-    q = query(q, where('status', '==', statusFilter));
+    return allTickets.filter(ticket => ticket.status === statusFilter);
   }
-
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ticket));
+  
+  return allTickets;
 }
 
 function formatTimeRemaining(slaDueAt: number): string {
@@ -65,6 +76,7 @@ export default function Support() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: tickets, isLoading } = useQuery<Ticket[]>({
     queryKey: ['/api/tickets', statusFilter],
