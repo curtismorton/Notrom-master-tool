@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../client/src/lib/firebase';
@@ -110,25 +111,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Stripe webhook endpoint
-  app.post("/api/stripe/webhook", async (req, res) => {
+  app.post("/api/stripe/webhook", express.raw({ type: 'application/json' }), async (req, res) => {
     try {
       // Demo mode - return mock response
       if (!functions) {
         res.json(demoResponses.stripeWebhook);
         return;
       }
-      
-      const stripeWebhook = httpsCallable(functions, 'stripeWebhook');
-      const result = await stripeWebhook({
-        signature: req.headers['stripe-signature'],
+
+      const webhookUrl = process.env.STRIPE_WEBHOOK_URL;
+      if (!webhookUrl) {
+        throw new Error('STRIPE_WEBHOOK_URL environment variable is required');
+      }
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'stripe-signature': req.headers['stripe-signature'] as string || ''
+        },
         body: req.body
       });
-      res.json(result.data);
+
+      const data = await response.json();
+      res.status(response.status).json(data);
     } catch (error: any) {
       console.error('Stripe webhook error:', error);
-      res.status(500).json({ 
-        message: "Error processing webhook", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error processing webhook",
+        error: error.message
       });
     }
   });
