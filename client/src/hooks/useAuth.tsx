@@ -1,5 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { User } from '@shared/schema';
+import { auth } from '@/lib/firebase';
+import { createUser } from '@/lib/firestore';
+import {
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithRedirect,
+  signOut
+} from 'firebase/auth';
 
 type FirebaseUser = any; // Not using real Firebase
 
