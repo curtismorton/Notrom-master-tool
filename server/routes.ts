@@ -121,7 +121,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stripeWebhook = httpsCallable(functions, 'stripeWebhook');
       const result = await stripeWebhook({
         signature: req.headers['stripe-signature'],
-        body: req.body
+        // When using express.raw middleware, req.body is a Buffer.
+        // Send it as a string so the callable function receives the
+        // original payload for signature verification.
+        body: req.body instanceof Buffer ? req.body.toString() : req.body
       });
       res.json(result.data);
     } catch (error: any) {
