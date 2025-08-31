@@ -17,7 +17,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-export const stripeWebhook = https.onRequest(async (req, res) => {
+// Enable raw body parsing so Stripe can verify the webhook signature
+export const stripeWebhook = https.onRequest({ rawBody: true } as any, async (req, res) => {
   try {
     const sig = req.headers['stripe-signature'];
     
@@ -30,7 +31,7 @@ export const stripeWebhook = https.onRequest(async (req, res) => {
     let event: Stripe.Event;
     
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
     } catch (err: any) {
       console.error(`Webhook signature verification failed: ${err.message}`);
       res.status(400).send(`Webhook Error: ${err.message}`);
