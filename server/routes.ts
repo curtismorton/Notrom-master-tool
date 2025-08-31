@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../client/src/lib/firebase';
+import { functions } from './firebase-client';
 
 // Demo mode responses
 const demoResponses = {
