@@ -24,24 +24,32 @@ const demoResponses = {
   stripeWebhook: { received: true }
 };
 
+// Helper to call Firebase functions with a demo-mode fallback
+async function callFunction<T>(
+  name: string,
+  payload: unknown,
+  fallback: T
+): Promise<T> {
+  if (!functions) {
+    return fallback;
+  }
+
+  const callable = httpsCallable(functions, name);
+  const result = await callable(payload);
+  return result.data as T;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Lead creation endpoint
   app.post("/api/leads", async (req, res) => {
     try {
-      // Demo mode - return mock response
-      if (!functions) {
-        res.json(demoResponses.leadCreate);
-        return;
-      }
-      
-      const leadCreate = httpsCallable(functions, 'leadCreate');
-      const result = await leadCreate(req.body);
-      res.json(result.data);
+      const result = await callFunction('leadCreate', req.body, demoResponses.leadCreate);
+      res.json(result);
     } catch (error: any) {
       console.error('Lead creation error:', error);
-      res.status(500).json({ 
-        message: "Error creating lead", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error creating lead",
+        error: error.message
       });
     }
   });
@@ -49,20 +57,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Meeting transcription endpoint
   app.post("/api/transcribe", async (req, res) => {
     try {
-      // Demo mode - return mock response
-      if (!functions) {
-        res.json(demoResponses.transcribeAndSummarize);
-        return;
-      }
-      
-      const transcribeFunction = httpsCallable(functions, 'transcribeAndSummarize');
-      const result = await transcribeFunction(req.body);
-      res.json(result.data);
+      const result = await callFunction(
+        'transcribeAndSummarize',
+        req.body,
+        demoResponses.transcribeAndSummarize
+      );
+      res.json(result);
     } catch (error: any) {
       console.error('Transcription error:', error);
-      res.status(500).json({ 
-        message: "Error transcribing audio", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error transcribing audio",
+        error: error.message
       });
     }
   });
@@ -70,20 +75,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Proposal generation endpoint
   app.post("/api/proposals/generate", async (req, res) => {
     try {
-      // Demo mode - return mock response
-      if (!functions) {
-        res.json(demoResponses.proposalGenerate);
-        return;
-      }
-      
-      const proposalGenerate = httpsCallable(functions, 'proposalGenerate');
-      const result = await proposalGenerate(req.body);
-      res.json(result.data);
+      const result = await callFunction(
+        'proposalGenerate',
+        req.body,
+        demoResponses.proposalGenerate
+      );
+      res.json(result);
     } catch (error: any) {
       console.error('Proposal generation error:', error);
-      res.status(500).json({ 
-        message: "Error generating proposal", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error generating proposal",
+        error: error.message
       });
     }
   });
@@ -91,20 +93,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Monthly reports endpoint
   app.post("/api/reports/monthly", async (req, res) => {
     try {
-      // Demo mode - return mock response
-      if (!functions) {
-        res.json(demoResponses.monthlyReports);
-        return;
-      }
-      
-      const monthlyReports = httpsCallable(functions, 'monthlyReports');
-      const result = await monthlyReports(req.body);
-      res.json(result.data);
+      const result = await callFunction(
+        'monthlyReports',
+        req.body,
+        demoResponses.monthlyReports
+      );
+      res.json(result);
     } catch (error: any) {
       console.error('Monthly report error:', error);
-      res.status(500).json({ 
-        message: "Error generating monthly report", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error generating monthly report",
+        error: error.message
       });
     }
   });
@@ -112,23 +111,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe webhook endpoint
   app.post("/api/stripe/webhook", async (req, res) => {
     try {
-      // Demo mode - return mock response
-      if (!functions) {
-        res.json(demoResponses.stripeWebhook);
-        return;
-      }
-      
-      const stripeWebhook = httpsCallable(functions, 'stripeWebhook');
-      const result = await stripeWebhook({
-        signature: req.headers['stripe-signature'],
-        body: req.body
-      });
-      res.json(result.data);
+      const result = await callFunction(
+        'stripeWebhook',
+        {
+          signature: req.headers['stripe-signature'],
+          body: req.body
+        },
+        demoResponses.stripeWebhook
+      );
+      res.json(result);
     } catch (error: any) {
       console.error('Stripe webhook error:', error);
-      res.status(500).json({ 
-        message: "Error processing webhook", 
-        error: error.message 
+      res.status(500).json({
+        message: "Error processing webhook",
+        error: error.message
       });
     }
   });
